@@ -22,7 +22,7 @@ app.get('/', function(req, res, next){
 	res.redirect('/lists');
 });
 app.get('/lists', function(req, res, next){
-	res.render('pages/lists');
+	res.render('pages/lists', {title: 'Lists'});
 });
 
 

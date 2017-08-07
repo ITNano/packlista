@@ -8,33 +8,35 @@
 		</header>
 		
 		<main>
-			<div class = "category">
-				<div class = "categoryname header">
-					TestCategory
-				</div>
-				<div class = "item">
-					<div class = "togglebox active" />
-					<div class = "itemname">
-							ItemName
-					</div>
-				</div>
-				<div class = "item">
-					<div class = "togglebox" />
-					<div class = "itemname">
-							SecondItem
-					</div>
-				</div>
-				<div class = "item">
-					<div class = "togglebox" />
-					<div class = "itemname">
-							AnotherItem
-					</div>
-				</div>
+			<div class = "category" name = "TestCategory">
+				<div class = "item" name = "ItemName" active/>
+				<div class = "item" name = "SecondItem" active="True"/>
+				<div class = "item" name = "AnotherItem" />
 			</div>
 		</main>
 		
 		<footer>
 			<% include ../partials/footer %>
 		</footer>
+		
+		<script type = "text/javascript">
+			$('.category').each(function(index, categoryEl){
+				var categoryName = $(categoryEl).attr('name');
+				var tag = $('<div>').addClass('category').append($('<div>').addClass('categoryname header').text(categoryName));
+				$(categoryEl).find('.item').each(function(itemIndex, itemEl){
+					var itemName = $(itemEl).attr('name');
+					var itemTag = $('<div>').addClass('item').append($('<div>').addClass('togglebox'+(['', 'true', 'TRUE', 'True'].indexOf($(itemEl).attr('active'))>=0 ?' active':'')).append($('<div>').addClass('selection').html('&#x2713;'))).append($('<div>').addClass('itemname').text(itemName));
+					tag.append(itemTag);
+				});
+				$('main').append(tag);
+				$(categoryEl).remove();
+			});
+			
+			$('.togglebox').click(function(){
+				console.log('toggling');
+				console.log($(this));
+				$(this).toggleClass('active');
+			});
+		</script>
 	</body>
 </html>
