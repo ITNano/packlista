@@ -8,33 +8,61 @@
 		</header>
 		
 		<main>
-			<div class = "category">
-				<div class = "categoryname header">
-					TestCategory
+			<% categories.forEach(function(category){ %>
+				<div class = "category" name = "<%= category.name %>" id = "<%= category.id %>">
+					<% category.items.forEach(function(item){ %>
+						<div class = "item" name = "<%= item.name %>" id = "<%= item.id %>" <% if(item.done){ %>active<% } %> ></div>
+					<% }); %>
 				</div>
-				<div class = "item">
-					<div class = "togglebox active" />
-					<div class = "itemname">
-							ItemName
-					</div>
-				</div>
-				<div class = "item">
-					<div class = "togglebox" />
-					<div class = "itemname">
-							SecondItem
-					</div>
-				</div>
-				<div class = "item">
-					<div class = "togglebox" />
-					<div class = "itemname">
-							AnotherItem
-					</div>
-				</div>
-			</div>
+			<% }); %>
 		</main>
 		
 		<footer>
 			<% include ../partials/footer %>
 		</footer>
+		
+		<script type = "text/javascript">
+			$('.category').each(function(index, categoryEl){
+				var tag = getCategoryTag($(categoryEl).attr('name'));
+				$(categoryEl).find('.item').each(function(itemIndex, itemEl){
+					var itemTag = getItemTag($(itemEl).attr('id'), $(itemEl).attr('name'), ['', 'true', 'TRUE', 'True'].indexOf($(itemEl).attr('active'))>=0);
+					tag.append(itemTag);
+				});
+				tag.append(getNewItemTag($(categoryEl).attr('id')));
+				$('main').append(tag);
+				$(categoryEl).remove();
+			});
+			
+			$('main').append(getCategoryTag('Create new category').addClass('fake'));
+			
+			$('.togglebox').click(function(){
+				var box = $(this);
+				box.toggleClass('active');
+				$.post('/toggleitem', {itemId: $(this).attr('itemId')}).fail(function(data){
+					box.toggleClass('active');		// It was never meant to success, so reverse it.
+				});
+			});
+			
+			function getCategoryTag(name){
+				return $('<div>').addClass('category').append($('<div>').addClass('categoryname header').text(name));
+			}
+			
+			function getItemTag(id, name, active){
+				console.log(id);
+				return $('<div>').addClass('item').append($('<div>').addClass('togglebox'+(active?' active':'')).attr('itemId', id).append($('<div>').addClass('selection').html('&#x2713;'))).append($('<div>').addClass('itemname').text(name));
+			}
+			
+			function getNewItemTag(categoryId){
+				return $('<form>').attr('id', 'additem_cat_'+categoryId).append($('<input>').attr('type', 'text').attr('placeholder', 'Add item').attr('name', 'name')).append($('<input>').attr('type', 'hidden').attr('name', 'categoryId').attr('value', categoryId)).append($('<input>').attr('type', 'submit').attr('value', 'Add').css('visibility', 'hidden')).on('submit', function(e){
+					e.preventDefault();
+					addItem(e.target);
+					location.reload();
+				});
+			}
+			
+			function addItem(form){
+				$(form).ajaxSubmit({url: 'additem', type: 'post', success: location.reload});
+			}
+		</script>
 	</body>
 </html>
